@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChiLex CBT | Admin Portal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/core-js-bundle/minified.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            startup: { ready: () => { window.MathJax.startup.defaultReady(); } }
+        };
+    </script>
+    <style>
+        :root {
+            --primary: #4318ff;
+            --primary-bg: #f4f7fe;
+            --secondary: #707eae;
+            --secondary-bg: #ffffff;
+            --success: #05cd99;
+            --warning: #ffb547;
+            --danger: #ee5d50;
+            --text-main: #1b2559;
+            --text-sub: #a3aed0;
+            --border: #e0e5f2;
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 80px;
+            --glass: rgba(255, 255, 255, 0.92);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            transition: background 0.3s;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===================== LOGIN PAGE ===================== */
+        #loginView {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            /* Fallback gradient if image unavailable */
+            background: linear-gradient(135deg, #0a1628 0%, #1a2d5a 40%, #0d3068 100%);
+        }
+
+        #loginView::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('/bgcbt2.jpg');
+            background-size: 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            opacity: 0.40;
+            filter: blur(1px) grayscale(30%);
+            transform: scale(1.05);
+        }
+
+        #loginView::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(10, 22, 40, 0.55) 0%, rgba(10, 22, 40, 0.85) 100%);
+        }
+
+        .login-wrapper {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 90%;
+            max-width: 460px;
+        }
+
+        .login-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .login-brand img {
+            height: 80px;
+            filter: drop-shadow(0 4px 20px rgba(67, 24, 255, 0.5)) brightness(1.2);
+        }
+
+        .login-brand p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .login-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-card .lock-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .login-card .subtitle {
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            font-size: 0.88rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            outline: none;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            background: white;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(67, 24, 255, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #4318ff 0%, #6b46ff 100%);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+            box-shadow: 0 8px 20px rgba(67, 24, 255, 0.35);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(67, 24, 255, 0.45);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        #loginError {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+            min-height: 1.2rem;
+        }
+
+        .login-footer {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        /* ===================== DASHBOARD ===================== */
+        #dashboardView {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary-bg);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+            padding: 2rem 0.75rem;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 1rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .logo span {
+            display: none;
+        }
+
+        .sidebar.collapsed .logo {
+            padding: 0;
+            justify-content: center;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-bg);
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px rgba(67, 24, 255, 0.15);
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .sidebar-footer p {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .sidebar.collapsed .sidebar-footer {
+            display: none;
+        }
+
+        .main-panel {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 0;
+        }
+
+        .sidebar.collapsed+.main-panel {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .burger-btn {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .page-info h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .page-info span {
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-block {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: white;
+            padding: 0.4rem 1rem 0.4rem 0.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            border: 1px solid #f0f3f9;
+            transition: all 0.2s;
+        }
+
+        .user-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #e0e5f2, #c8d0ef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        /* ===================== STATS ===================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f0f3f9;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-card.blue .stat-icon {
+            background: #e9edfe;
+            color: var(--primary);
+        }
+
+        .stat-card.green .stat-icon {
+            background: #e6faf5;
+            color: var(--success);
+        }
+
+        .stat-card.orange .stat-icon {
+            background: #fff4e5;
+            color: var(--warning);
+        }
+
+        .stat-card.red .stat-icon {
+            background: #ffe5e3;
+            color: var(--danger);
+        }
+
+        .stat-info h3 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info span {
+            color: var(--secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        /* ===================== CARDS ===================== */
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            border: 1px solid #f0f3f9;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        /* ===================== TABLE ===================== */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-sub);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 1rem;
+            border-bottom: 2px solid var(--border);
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #fafbff;
+        }
+
+        /* ===================== BUTTONS ===================== */
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 0.7rem 1.4rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(67, 24, 255, 0.25);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 0.4rem 0.9rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.85;
+        }
+
+        /* ===================== FORMS ===================== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.83rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--secondary);
+            margin-left: 0.25rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            outline: none;
+            font-size: 0.9rem;
+            transition: all 0.25s;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.08);
+        }
+
+        /* ===================== UPLOAD AREA ===================== */
+        .upload-area-mini {
+            border: 2.5px dashed var(--border);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: var(--primary-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .upload-area-mini:hover {
+            border-color: var(--primary);
+            background: #ece8ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-area-mini .upload-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(67, 24, 255, 0.12);
+            color: var(--primary);
+            transition: all 0.25s;
+        }
+
+        .upload-area-mini:hover .upload-icon {
+            box-shadow: 0 6px 20px rgba(67, 24, 255, 0.22);
+            transform: scale(1.08);
+        }
+
+        .upload-area-mini .upload-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .upload-area-mini .upload-sub {
+            font-size: 0.8rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .upload-area-mini .format-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 0.25rem;
+        }
+
+        .format-badge {
+            background: white;
+            border: 1.5px solid var(--border);
+            color: var(--primary);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* ===================== ACTIVITY ===================== */
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .activity-item:hover {
+            background: #fafbff;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-bg);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-body {
+            flex: 1;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.2rem;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .activity-user {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .activity-text {
+            font-size: 0.84rem;
+            color: var(--secondary);
+        }
+
+        /* ===================== HOW TO ===================== */
+        .how-to-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .how-to-section h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .how-to-card {
+            background: var(--primary-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .how-to-card code {
+            background: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--danger);
+            font-family: monospace;
+        }
+
+        .how-to-card pre {
+            background: #1b2559;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            font-size: 0.83rem;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        /* ===================== BADGES ===================== */
+        .role-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .role-super {
+            background: #e9edfe;
+            color: var(--primary);
+        }
+
+        .role-admin {
+            background: #e6faf5;
+            color: var(--success);
+        }
+
+        .status-active {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .status-used {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        .status-expired,
+        .status-revoked {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        /* ===================== TOAST ===================== */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1b2559;
+            color: white;
+            padding: 0.9rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #toast.success {
+            background: var(--success);
+        }
+
+        #toast.error {
+            background: var(--danger);
+        }
+
+        /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width) !important;
+                padding: 2rem 1.25rem !important;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+                box-shadow: 20px 0 50px rgba(0, 0, 0, 0.2);
+            }
+
+            .main-panel {
+                margin-left: 0 !important;
+            }
+
+            .burger-btn {
+                display: flex !important;
+            }
+
+            .collapseToggle {
+                display: none !important;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.3);
+                z-index: 99;
+                backdrop-filter: blur(4px);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .main-panel {
+                padding: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #profileGrid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toast"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- =================== LOGIN VIEW =================== -->
+    <div id="loginView">
+        <div class="login-wrapper">
+            <div class="login-brand">
+                <img src="/chilex-logo.png" alt="ChiLex CBT Logo">
+                <p>Admin Management Portal</p>
+            </div>
+            <div class="login-card">
+                <div class="lock-icon">🔐</div>
+                <h2>Admin Login</h2>
+                <p class="subtitle">Sign in to access the ChiLex CBT dashboard</p>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter username"
+                        onkeydown="if(event.key==='Enter') login()">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter password"
+                        onkeydown="if(event.key==='Enter') login()">
+                </div>
+                <div id="loginError"></div>
+                <button class="btn-login" id="loginBtn" onclick="login()">Sign In</button>
+            </div>
+            <div class="login-footer">Powered by ChiLex &mdash; Computer Based Testing System</div>
+        </div>
+    </div>
+
+    <!-- =================== DASHBOARD VIEW =================== -->
+    <div id="dashboardView" class="hidden">
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <i data-lucide="zap" fill="currentColor"></i>
+                <span>ChiLex Admin</span>
+            </div>
+            <ul class="nav-links">
+                <li id="nav-stats"><a class="nav-link active" onclick="showTab('stats', event)"><i
+                            data-lucide="layout-dashboard"></i><span>Dashboard</span></a></li>
+                <li id="nav-licenses"><a class="nav-link" onclick="showTab('licenses', event)"><i
+                            data-lucide="key"></i><span>Licenses</span></a></li>
+                <li id="nav-questions"><a class="nav-link" onclick="showTab('questions', event)"><i
+                            data-lucide="database"></i><span>Questions</span></a></li>
+                <li id="nav-users" class="hidden"><a class="nav-link" onclick="showTab('users', event)"><i
+                            data-lucide="users"></i><span>Users Registry</span></a></li>
+                <li id="nav-activity"><a class="nav-link" onclick="showTab('activity', event)"><i
+                            data-lucide="activity"></i><span>Activity Log</span></a></li>
+                <li><a class="nav-link" onclick="showTab('profile', event)"><i data-lucide="user-cog"></i><span>My
+                            Profile</span></a></li>
+                <li><a class="nav-link" onclick="showTab('how-to', event)"><i data-lucide="help-circle"></i><span>How
+                            To</span></a></li>
+            </ul>
+            <div style="margin-top: auto; padding-top: 1rem;">
+                <a class="nav-link" onclick="logout()" style="color: var(--danger);">
+                    <i data-lucide="log-out"></i><span>Logout</span>
+                </a>
+                <div class="sidebar-footer">
+                    <p>Powered by ChiLex</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-panel" id="mainPanelContent">
+            <header>
+                <div class="header-left">
+                    <button class="burger-btn" onclick="toggleSidebar()"><i data-lucide="menu"></i></button>
+                    <button class="burger-btn collapseToggle" id="collapseToggle" onclick="toggleSidebarCollapse()"><i
+                            data-lucide="chevrons-left" id="collapseIcon"></i></button>
+                    <div class="page-info">
+                        <span id="breadcrumb">Pages / Dashboard</span>
+                        <h1 id="pageTitle">Main Dashboard</h1>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-block" onclick="showTab('profile', event)">
+                        <div id="topAvatar" class="user-avatar"><i data-lucide="user" size="16"></i></div>
+                        <span id="adminNameDisplay" style="font-weight: 700; font-size: 0.85rem;">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD / STATS -->
+            <div id="statsContent">
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon"><i data-lucide="shield-check" size="24"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statTotalLicenses">—</h3>
+                            <span>Total Licenses</span>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon"><i data-lucide="file-text" size="24"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statTotalQuestions">—</h3>
+                            <span>Question Bank</span>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon"><i data-lucide="check-circle" size="24"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statActiveLicenses">—</h3>
+                            <span>Active Licenses</span>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon"><i data-lucide="x-circle" size="24"></i></div>
+                        <div class="stat-info">
+                            <h3 id="statUsedLicenses">—</h3>
+                            <span>Used Licenses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Recent Activity</h2>
+                        <span style="font-size:0.8rem; color:var(--text-sub);">Last 5 events</span>
+                    </div>
+                    <div id="dashActivityFeed">
+                        <p style="color:var(--text-sub); font-size:0.9rem;">Loading…</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LICENSES -->
+            <div id="licensesContent" class="hidden">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>License Management</h2>
+                        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                            <button class="btn-primary" onclick="generateLicenses()"><i data-lucide="plus"
+                                    size="16"></i>Generate</button>
+                            <button class="btn-primary" onclick="exportLicenses()" style="background:#05cd99;"><i
+                                    data-lucide="download" size="16"></i>Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="licensesTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>License Key</th>
+                                    <th>Status</th>
+                                    <th>Machine ID</th>
+                                    <th>Date Created</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTIONS -->
+            <div id="questionsContent" class="hidden">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Question Import</h2>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Exam Body (Default)</label>
+                            <select id="uploadExamBody">
+                                <option value="">All Types</option>
+                                <option value="JAMB">JAMB</option>
+                                <option value="WAEC">WAEC</option>
+                                <option value="NECO">NECO</option>
+                                <option value="NABTEB">NABTEB</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Year (Default)</label>
+                            <input type="text" id="uploadYear" placeholder="e.g. 2024">
+                        </div>
+                    </div>
+                    <input type="file" id="csvFile" accept=".csv,.json,.txt" class="hidden"
+                        onchange="handleFileUpload()">
+                    <div class="upload-area-mini" onclick="document.getElementById('csvFile').click()">
+                        <div class="upload-icon">
+                            <i data-lucide="upload-cloud" size="28"></i>
+                        </div>
+                        <div class="upload-title">Click to Upload Questions</div>
+                        <div class="upload-sub">Drag & drop or click to browse your files</div>
+                        <div class="format-badges">
+                            <span class="format-badge">CSV</span>
+                            <span class="format-badge">JSON</span>
+                            <span class="format-badge">TXT</span>
+                        </div>
+                    </div>
+                    <div id="uploadStatus" style="margin-top:1rem;"></div>
+                </div>
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Question Registry</h2>
+                        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                            <button class="btn-primary" onclick="showAddQuestionPage()" style="background:var(--success);">
+                                <i data-lucide="plus" size="16"></i>Add Question
+                            </button>
+                            <select id="filterExamBody" onchange="loadQuestions()" style="padding:0.5rem;border-radius:8px;border:1px solid var(--border);">
+                                <option value="">All Exam Bodies</option>
+                                <option value="JAMB">JAMB</option>
+                                <option value="WAEC">WAEC</option>
+                                <option value="NECO">NECO</option>
+                                <option value="NABTEB">NABTEB</option>
+                            </select>
+                            <select id="filterSubject" onchange="onSubjectChange()" style="padding:0.5rem;border-radius:8px;border:1px solid var(--border);">
+                                <option value="">All Subjects</option>
+                            </select>
+                            <select id="filterYear" onchange="loadQuestions()" style="padding:0.5rem;border-radius:8px;border:1px solid var(--border);" class="hidden">
+                                <option value="">All Years</option>
+                            </select>
+                            <input type="text" id="searchQuestions" placeholder="Search..." onkeyup="loadQuestions()" style="padding:0.5rem;border-radius:8px;border:1px solid var(--border);">
+                            <div id="bulkActions" class="hidden" style="display:flex;gap:0.5rem;align-items:center;">
+                                <span style="font-size:0.8rem;font-weight:600;" id="selectedCount">0 selected</span>
+                                <select id="bulkActionType" style="padding:0.4rem;border-radius:6px;border:1px solid var(--border);">
+                                    <option value="">Bulk Actions</option>
+                                    <option value="change_exam_body">Change Exam Body</option>
+                                    <option value="change_year">Change Year</option>
+                                    <option value="delete">Delete Selected</option>
+                                </select>
+                                <button class="btn-danger" onclick="executeBulkAction()" style="padding:0.4rem 0.8rem;">Apply</button>
+                            </div>
+                        </div>
+                        <span id="questionsCount" style="font-size:0.8rem;color:var(--text-sub);"></span>
+                    </div>
+                    <div class="table-container">
+                        <table id="questionsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px;"><input type="checkbox" id="selectAllQuestions" onchange="toggleSelectAll()"></th>
+                                    <th>#</th>
+                                    <th>Subject</th>
+                                    <th>Exam Body</th>
+                                    <th>Year</th>
+                                    <th>Question Preview</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USERS REGISTRY (Super Admin Only) -->
+            <div id="usersContent" class="hidden">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Create New Administrator</h2>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Username</label><input type="text" id="nu-username"
+                                placeholder="e.g. john_doe"></div>
+                        <div class="form-group"><label>Full Name</label><input type="text" id="nu-fullname"
+                                placeholder="e.g. John Doe"></div>
+                        <div class="form-group"><label>Password</label><input type="password" id="nu-password"
+                                placeholder="Min. 8 characters"></div>
+                        <div class="form-group"><label>Role</label>
+                            <select id="nu-role">
+                                <option value="admin">Standard Admin</option>
+                                <option value="super_admin">Super Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>Permissions (Standard Admin only)</label>
+                            <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem; flex-wrap:wrap;">
+                                <label
+                                    style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;font-size:0.88rem;"><input
+                                        type="checkbox" value="stats" checked> Stats</label>
+                                <label
+                                    style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;font-size:0.88rem;"><input
+                                        type="checkbox" value="licenses" checked> Licenses</label>
+                                <label
+                                    style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;font-size:0.88rem;"><input
+                                        type="checkbox" value="questions" checked> Questions</label>
+                                <label
+                                    style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;font-size:0.88rem;"><input
+                                        type="checkbox" value="activity" checked> Activity</label>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="createUser()"><i data-lucide="user-plus" size="16"></i>Create
+                        User</button>
+                </div>
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>Active Administrators</h2>
+                    </div>
+                    <div class="table-container">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Role</th>
+                                    <th>Permissions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVITY LOG -->
+            <div id="activityContent" class="hidden">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2>System Activity Logs</h2>
+                        <button class="btn-primary" onclick="loadActivity()" style="background:#707eae;"><i
+                                data-lucide="refresh-cw" size="16"></i>Refresh</button>
+                    </div>
+                    <div id="activityFeed">
+                        <p style="color:var(--text-sub);">Loading…</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HOW TO -->
+            <div id="how-toContent" class="hidden">
+                <div class="content-card">
+                    <div class="how-to-section">
+                        <h3>1. Uploading Questions</h3>
+                        <div class="how-to-card">
+                            <p>Upload questions in three formats: <strong>CSV</strong>, <strong>JSON</strong>, or
+                                <strong>Plain Text (.txt)</strong>.
+                            </p>
+                            <p style="margin-top:1rem;"><strong>Format 1: Plain Text (.txt)</strong> — blocks separated
+                                by <code>---</code></p>
+                            <pre>Subject: Mathematics
+Exam: JAMB
+Year: 2024
+Q: What is 2 + 2?
+A: 3
+B: 4
+C: 5
+D: 6
+ANS: B
+---
+Subject: English
+Exam: WAEC
+Year: 2023
+Q: Choose the correct spelling.
+A: Recieve
+B: Receive
+C: Recive
+D: Receeve
+ANS: B</pre>
+                            <p style="margin-top:1rem;"><strong>Format 2: CSV</strong> — with headers:
+                                <code>subject, exam_body, year, question_text, option_a, option_b, option_c, option_d, correct_option</code>
+                            </p>
+                            <p style="margin-top:0.75rem;"><strong>Format 3: JSON</strong> — array of objects with the
+                                same field names as CSV headers.</p>
+                        </div>
+                    </div>
+                    <div class="how-to-section">
+                        <h3>2. Managing Admin Users</h3>
+                        <div class="how-to-card">
+                            <p>Super Admins can create sub-admins and assign specific permissions. This lets you
+                                delegate tasks like license generation or question uploading without giving full system
+                                access.</p>
+                        </div>
+                    </div>
+                    <div class="how-to-section">
+                        <h3>3. Building for Production (htdocs)</h3>
+                        <div class="how-to-card">
+                            <p>The admin dashboard is a <strong>static HTML file</strong> served by the Node.js admin
+                                server.</p>
+                            <p style="margin-top:0.75rem;">To deploy to your <strong>htdocs/server</strong>:</p>
+                            <pre># 1. Copy the admin-server folder to your server
+# 2. Install dependencies on the server:
+npm install --production
+
+# 3. Start the server (use pm2 for persistence):
+npm install -g pm2
+pm2 start server.js --name chilex-admin
+pm2 save
+
+# The admin panel will be at: http://yourserver.com:4000</pre>
+                            <p style="margin-top:0.75rem;">Update the <code>BACKEND_URL</code> in
+                                <code>index.html</code> to your server's public URL before deploying.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="how-to-section">
+                        <h3>4. Profile Customization</h3>
+                        <div class="how-to-card">
+                            <p>Go to <strong>My Profile</strong> to update your display name, phone number, and avatar.
+                                Changes are saved when you click the Save button.</p>
+                        </div>
+                    </div>
+                    <div class="how-to-section">
+                        <h3>5. Math & Scientific Symbols</h3>
+                        <div class="how-to-card">
+                            <p>You can add mathematical equations and scientific symbols in questions using <strong>LaTeX</strong> syntax. The system uses MathJax to render formulas.</p>
+                            <p style="margin-top:1rem;"><strong>Inline Math</strong> — wrap in <code>$...$</code> (for within a sentence)</p>
+                            <pre>$x^2 + y^2 = z^2$
+$\frac{a}{b}$
+$H_2O$
+$\sqrt{x^2 + y^2}$</pre>
+                            <p style="margin-top:1rem;"><strong>Display Math</strong> — wrap in <code>$$...$$</code> (for standalone equations)</p>
+                            <pre>$$\frac{-b \pm \sqrt{b^2-4ac}}{2a}$$
+$$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+$$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
+                            <p style="margin-top:1rem;"><strong>Common Symbols:</strong></p>
+                            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                                <tr style="background:var(--primary-bg);"><th style="padding:0.5rem;border:1px solid var(--border);text-align:left;">Type</th><th style="padding:0.5rem;border:1px solid var(--border);text-align:left;">Syntax</th><th style="padding:0.5rem;border:1px solid var(--border);text-align:left;">Output</th></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Fractions</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\frac{a}{b}$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">a/b</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Square Root</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\sqrt{x}$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">√x</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Superscript</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$x^2$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">x²</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Subscript</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$H_2O$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">H₂O</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Plus/Minus</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\pm$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">±</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Infinity</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\infty$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">∞</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Alpha</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\alpha$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">α</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Beta</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\beta$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">β</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Pi</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$\pi$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">π</td></tr>
+                                <tr><td style="padding:0.5rem;border:1px solid var(--border);">Degree</td><td style="padding:0.5rem;border:1px solid var(--border);"><code>$90^\circ$</code></td><td style="padding:0.5rem;border:1px solid var(--border);">90°</td></tr>
+                            </table>
+                            <p style="margin-top:1rem;font-size:0.85rem;color:var(--secondary);">These formulas will also render correctly in the student exam pages.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE -->
+            <div id="profileContent" class="hidden">
+                <div id="profileGrid" style="display:grid;grid-template-columns:300px 1fr;gap:2rem;">
+                    <div class="content-card" style="text-align:center;">
+                        <div id="profileLargeAvatar" class="user-avatar"
+                            style="width:120px;height:120px;margin:0 auto 1.25rem;font-size:3rem;"></div>
+                        <h3 id="profileNameTitle" style="font-weight:800;margin-bottom:0.25rem;">Admin User</h3>
+                        <p id="profileRoleBadge" style="margin-bottom:1.75rem;"></p>
+                        <input type="file" id="avatarInput" accept="image/*" class="hidden"
+                            onchange="handleAvatarUpload()">
+                        <button class="btn-primary" style="width:100%;justify-content:center;"
+                            onclick="document.getElementById('avatarInput').click()">
+                            <i data-lucide="camera" size="16"></i> Change Photo
+                        </button>
+                    </div>
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>Profile Settings</h2>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group"><label>Full Name</label><input type="text" id="profFullName"
+                                    placeholder="Your full name"></div>
+                            <div class="form-group"><label>Phone Number</label><input type="text" id="profPhone"
+                                    placeholder="+234..."></div>
+                            <div class="form-group" style="grid-column:span 2;"><label>New Password</label><input
+                                    type="password" id="profPassword" placeholder="Leave empty to keep current"></div>
+                        </div>
+                        <button class="btn-primary" style="margin-top:0.5rem;" onclick="updateProfile()">
+                            <i data-lucide="save" size="16"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /main-panel -->
+    </div><!-- /dashboardView -->
+
+    <script>
+        // ====================================================
+        //   CONFIGURATION - PHP Hosting Setup
+        // ====================================================
+        // For PHP hosting: Leave empty to use relative URLs
+        // For Node.js: Change to your server URL (e.g., 'http://localhost:4000')
+        const BACKEND_URL = ''; // Uses relative paths
+
+        let token = localStorage.getItem('chx_admin_token');
+        let currentUser = null;
+
+        // Auto-login if token exists
+        if (token) {
+            showDashboard().catch(() => {
+                // Token is invalid/expired – clear and show login
+                localStorage.removeItem('chx_admin_token');
+                token = null;
+            });
+        }
+
+        // =================== AUTH ===================
+        // Load last active tab from localStorage
+        let lastActiveTab = localStorage.getItem('chx_last_tab') || 'stats';
+
+        async function login() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value;
+            const errEl = document.getElementById('loginError');
+            const btn = document.getElementById('loginBtn');
+
+            if (!u || !p) { errEl.textContent = 'Please enter username and password.'; return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Signing in…';
+            errEl.textContent = '';
+
+            try {
+                const res = await fetch('api.php?route=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    token = data.token;
+                    localStorage.setItem('chx_admin_token', token);
+                    showDashboard();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    errEl.textContent = err.error || 'Invalid username or password.';
+                }
+            } catch (e) {
+                errEl.textContent = 'Cannot connect to server. Please check your configuration.';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+
+        async function showDashboard() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            lucide.createIcons();
+            await fetchProfile();
+            applyPermissions();
+            loadStats();
+            loadDashActivity();
+            // Show last active tab
+            showTab(lastActiveTab, null);
+            // Update nav active state
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const lastNav = document.getElementById('nav-' + lastActiveTab);
+            if (lastNav) lastNav.querySelector('a').classList.add('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('chx_admin_token');
+            token = null;
+            currentUser = null;
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').textContent = '';
+        }
+
+        // =================== API HELPER ===================
+        async function fetchAPI(url, options = {}) {
+            options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+            const res = await fetch(url, options);
+            if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+            if (res.status === 403) { showToast('Permission denied', 'error'); throw new Error('Forbidden'); }
+            return res.json();
+        }
+
+        // =================== PROFILE ===================
+        async function fetchProfile() {
+            try {
+                currentUser = await fetchAPI('api.php?route=profile');
+                const name = currentUser.full_name || currentUser.username;
+                document.getElementById('adminNameDisplay').innerText = name;
+                document.getElementById('profFullName').value = currentUser.full_name || '';
+                document.getElementById('profPhone').value = currentUser.phone || '';
+                document.getElementById('profileNameTitle').innerText = name;
+
+                const avatarHtml = currentUser.avatar_url
+                    ? `<img src="${BACKEND_URL}${currentUser.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+                    : `<i data-lucide="user" size="18"></i>`;
+                document.getElementById('topAvatar').innerHTML = avatarHtml;
+                document.getElementById('profileLargeAvatar').innerHTML = avatarHtml;
+                document.getElementById('profileRoleBadge').innerHTML =
+                    `<span class="role-badge ${currentUser.role === 'super_admin' ? 'role-super' : 'role-admin'}">${currentUser.role.replace('_', ' ')}</span>`;
+                lucide.createIcons();
+            } catch (e) { /* handled by fetchAPI */ }
+        }
+
+        function applyPermissions() {
+            if (!currentUser) return;
+            const perms = currentUser.permissions || [];
+            if (currentUser.role === 'super_admin') {
+                // Super admin sees everything
+                document.getElementById('nav-users').classList.remove('hidden');
+                document.getElementById('nav-activity').classList.remove('hidden');
+            } else {
+                // Standard admin: show activity, hide users registry
+                document.getElementById('nav-users').classList.add('hidden');
+                document.getElementById('nav-activity').classList.remove('hidden');
+                if (!perms.includes('stats')) document.getElementById('nav-stats').classList.add('hidden');
+                if (!perms.includes('licenses')) document.getElementById('nav-licenses').classList.add('hidden');
+                if (!perms.includes('questions')) document.getElementById('nav-questions').classList.add('hidden');
+            }
+        }
+
+        async function updateProfile() {
+            const full_name = document.getElementById('profFullName').value;
+            const phone = document.getElementById('profPhone').value;
+            const password = document.getElementById('profPassword').value;
+            try {
+                await fetchAPI('api.php?route=profile/update', {
+                    method: 'PATCH',
+                    body: fd
+                });
+                document.getElementById('profPassword').value = '';
+                await fetchProfile();
+                showToast('Profile updated successfully!', 'success');
+            } catch (e) { showToast('Failed to update profile.', 'error'); }
+        }
+
+        async function handleAvatarUpload() {
+            const formData = new FormData();
+            formData.append('avatar', document.getElementById('avatarInput').files[0]);
+            try {
+                await fetchAPI('api.php?route=profile/avatar', { method: 'POST', body: formData });
+                fetchProfile();
+                showToast('Avatar updated!', 'success');
+            } catch (e) { showToast('Avatar upload failed.', 'error'); }
+        }
+
+        // =================== STATS ===================
+        async function loadStats() {
+            try {
+                const data = await fetchAPI('api.php?route=stats');
+                document.getElementById('statTotalLicenses').innerText = data.total_licenses ?? 0;
+                document.getElementById('statTotalQuestions').innerText = data.total_questions ?? 0;
+                document.getElementById('statActiveLicenses').innerText = data.active_licenses ?? 0;
+                document.getElementById('statUsedLicenses').innerText = data.used_licenses ?? 0;
+            } catch (e) {
+                ['statTotalLicenses', 'statTotalQuestions', 'statActiveLicenses', 'statUsedLicenses']
+                    .forEach(id => document.getElementById(id).innerText = 'Err');
+            }
+        }
+
+        async function loadDashActivity() {
+            try {
+                const logs = await fetchAPI('api.php?route=activity');
+                const recent = logs.slice(0, 5);
+                document.getElementById('dashActivityFeed').innerHTML = recent.length ? recent.map(l => activityItemHtml(l)).join('') : '<p style="color:var(--text-sub);padding:1rem;">No activity recorded yet.</p>';
+                lucide.createIcons();
+            } catch (e) { document.getElementById('dashActivityFeed').innerHTML = '<p style="color:var(--danger);">Failed to load activity.</p>'; }
+        }
+
+        // =================== LICENSES ===================
+        async function loadLicenses() {
+            try {
+                const data = await fetchAPI('api.php?route=licenses');
+                document.querySelector('#licensesTable tbody').innerHTML = data.licenses.map((l, i) => `
+                    <tr>
+                        <td style="color:var(--text-sub)">${i + 1}</td>
+                        <td><code style="font-family:monospace;font-weight:700;">${l.license_key}</code></td>
+                        <td><span class="status-${l.status}">${l.status.toUpperCase()}</span></td>
+                        <td style="font-size:0.8rem;color:var(--secondary);">${l.machine_id || '—'}</td>
+                        <td style="color:var(--text-sub);">${new Date(l.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            } catch (e) { showToast('Failed to load licenses.', 'error'); }
+        }
+
+        async function generateLicenses() {
+            const amount = parseInt(prompt('How many licenses to generate?', '1') || '0');
+            if (!amount || amount < 1) return;
+            try {
+                const res = await fetchAPI('api.php?route=licenses/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+                showToast(`✓ Generated ${res.generated.length} license(s)`, 'success');
+                loadLicenses();
+                loadStats();
+            } catch (e) { showToast('License generation failed.', 'error'); }
+        }
+
+        function exportLicenses() {
+            const rows = document.querySelectorAll('#licensesTable tbody tr');
+            let csv = 'Key,Status,Machine ID,Date\n';
+            rows.forEach(r => {
+                const cells = r.querySelectorAll('td');
+                csv += `"${cells[1].innerText}","${cells[2].innerText}","${cells[3].innerText}","${cells[4].innerText}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = 'chilex_licenses.csv'; a.click();
+        }
+
+        // =================== QUESTIONS ===================
+        let selectedQuestions = [];
+        let currentEditQuestion = null;
+        let questionImageFile = null;
+        let optionImages = { a: null, b: null, c: null, d: null };
+
+        async function loadQuestions() {
+            try {
+                const examBody = document.getElementById('filterExamBody')?.value || '';
+                const subject = document.getElementById('filterSubject')?.value || '';
+                const year = document.getElementById('filterYear')?.value || '';
+                const search = document.getElementById('searchQuestions')?.value || '';
+                
+                const data = await fetchAPI('api.php?route=questions&exam_body=' + examBody + '&subject=' + subject + '&year=' + year + '&search=' + search);
+                const meta = await fetchAPI('api.php?route=questions&meta=1' + (subject ? '&subject=' + encodeURIComponent(subject) : ''));
+                
+                // Populate subject filter - always rebuild but preserve selection
+                const subjectSel = document.getElementById('filterSubject');
+                const currentSubjectVal = subject || '';
+                subjectSel.innerHTML = '<option value="">All Subjects</option>' + 
+                    meta.subjects.map(s => `<option value="${s}" ${s === currentSubjectVal ? 'selected' : ''}>${s}</option>`).join('');
+                
+                // Populate year filter when subject is selected
+                const yearSel = document.getElementById('filterYear');
+                if (subject) {
+                    yearSel.classList.remove('hidden');
+                    const currentYear = year || '';
+                    yearSel.innerHTML = '<option value="">All Years</option>' + 
+                        (meta.years || []).map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('');
+                } else {
+                    yearSel.classList.add('hidden');
+                    yearSel.value = '';
+                }
+                
+                const qs = data.questions || [];
+                document.getElementById('questionsCount').innerText = `${data.total || qs.length} questions`;
+                
+                const isSuperAdmin = currentUser?.role === 'super_admin';
+                document.querySelector('#questionsTable tbody').innerHTML = qs.map((q, i) => `
+                    <tr>
+                        <td style="width:40px;"><input type="checkbox" class="question-checkbox" value="${q.id}" onchange="updateSelectedCount()"></td>
+                        <td style="color:var(--text-sub)">${i + 1}</td>
+                        <td><strong>${q.subject}</strong></td>
+                        <td><span class="role-badge ${q.exam_body === 'JAMB' ? 'role-super' : 'role-admin'}">${q.exam_body}</span></td>
+                        <td>${q.year || '—'}</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.question_text}</td>
+                        <td>
+                            <button class="btn-primary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="editQuestion(${q.id})"><i data-lucide="edit-2" size="12"></i> Edit</button>
+                            ${isSuperAdmin ? `<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;margin-left:0.25rem;" onclick="deleteQuestion(${q.id})"><i data-lucide="trash-2" size="12"></i></button>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+                lucide.createIcons();
+                
+                // Show/hide bulk actions based on role
+                document.getElementById('bulkActions').classList.toggle('hidden', !isSuperAdmin);
+            } catch (e) { showToast('Failed to load questions.', 'error'); }
+        }
+
+        function onSubjectChange() {
+            const subject = document.getElementById('filterSubject').value;
+            // Reset year when subject changes
+            document.getElementById('filterYear').value = '';
+            loadQuestions();
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.question-checkbox:checked');
+            selectedQuestions = Array.from(checkboxes).map(c => parseInt(c.value));
+            document.getElementById('selectedCount').innerText = selectedQuestions.length + ' selected';
+            document.getElementById('bulkActions').classList.toggle('hidden', selectedQuestions.length === 0);
+        }
+
+        function toggleSelectAll() {
+            const master = document.getElementById('selectAllQuestions');
+            document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = master.checked);
+            updateSelectedCount();
+        }
+
+        async function executeBulkAction() {
+            if (selectedQuestions.length === 0) { showToast('No questions selected.', 'error'); return; }
+            const action = document.getElementById('bulkActionType').value;
+            if (!action) { showToast('Please select an action.', 'error'); return; }
+            
+            if (action === 'delete') {
+                if (!confirm('Delete ' + selectedQuestions.length + ' question(s)? This cannot be undone.')) return;
+                try {
+                    await fetchAPI('api.php?route=questions/bulk', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: selectedQuestions })
+                    });
+                    showToast('Questions deleted.', 'success');
+                    loadQuestions();
+                } catch (e) { showToast('Failed to delete questions.', 'error'); }
+            } else if (action === 'change_exam_body') {
+                document.getElementById('bulkChangeTitle').innerText = 'Change Exam Body';
+                document.getElementById('bulkExamBodySelect').classList.remove('hidden');
+                document.getElementById('bulkYearSelect').classList.add('hidden');
+                document.getElementById('bulkChangeModal').classList.remove('hidden');
+            } else if (action === 'change_year') {
+                document.getElementById('bulkChangeTitle').innerText = 'Change Year';
+                document.getElementById('bulkExamBodySelect').classList.add('hidden');
+                document.getElementById('bulkYearSelect').classList.remove('hidden');
+                document.getElementById('bulkChangeModal').classList.remove('hidden');
+            }
+        }
+
+        function closeBulkChangeModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('bulkChangeModal').classList.add('hidden');
+        }
+
+        async function confirmBulkChange() {
+            const action = document.getElementById('bulkActionType').value;
+            const examBody = document.getElementById('bulk-exam-body-target')?.value;
+            const year = document.getElementById('bulk-year-target')?.value;
+            
+            try {
+                await fetchAPI('api.php?route=questions/bulk', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: selectedQuestions, exam_body: examBody, year: year })
+                });
+                showToast('Questions updated.', 'success');
+                closeBulkChangeModal({ target: document.getElementById('bulkChangeModal'), stopPropagation: () => {} });
+                loadQuestions();
+            } catch (e) { showToast('Failed to update questions.', 'error'); }
+        }
+
+        async function deleteQuestion(id) {
+            if (!confirm('Delete this question?')) return;
+            try {
+                await fetchAPI('api.php?route=questions/' + id, { method: 'DELETE' });
+                showToast('Question deleted.', 'success');
+                loadQuestions();
+            } catch (e) { showToast('Failed to delete question.', 'error'); }
+        }
+
+        async function editQuestion(id) {
+            try {
+                const data = await fetchAPI('api.php?route=questions&id=' + id);
+                const q = data.questions[0];
+                if (!q) return;
+                
+                // Load into pageflow form starting at step 1 (so user can navigate and edit)
+                showAddQuestionPage();
+                addQuestionStep = 1;
+                currentEditQuestion = q;
+                
+                document.getElementById('aq-subject').value = q.subject || '';
+                document.getElementById('aq-exam-body').value = q.exam_body || 'JAMB';
+                document.getElementById('aq-year').value = q.year || '';
+                document.getElementById('aq-question-text').value = q.question_text || '';
+                document.getElementById('aq-option-a').value = q.option_a || '';
+                document.getElementById('aq-option-b').value = q.option_b || '';
+                document.getElementById('aq-option-c').value = q.option_c || '';
+                document.getElementById('aq-option-d').value = q.option_d || '';
+                document.getElementById('aq-correct-option').value = q.correct_option || '';
+                
+                // Store existing image paths for update
+                questionImageFile = null;
+                optionImages = { a: null, b: null, c: null, d: null };
+                
+                if (q.question_image) {
+                    document.getElementById('aq-question-image-name').innerHTML = '<img src="' + BACKEND_URL + q.question_image + '" style="max-width:100px;max-height:60px;vertical-align:middle;border-radius:4px;margin-left:0.5rem;"> <span style="font-size:0.7rem;color:var(--secondary);margin-left:0.5rem;">(current)</span>';
+                }
+                ['a','b','c','d'].forEach(o => {
+                    const imgField = 'option_' + o + '_image';
+                    const imgNameEl = document.getElementById('aq-option-' + o + '-image-name');
+                    if (q[imgField]) {
+                        imgNameEl.innerHTML = '<img src="' + BACKEND_URL + q[imgField] + '" style="max-width:60px;max-height:40px;border-radius:4px;"> <span style="font-size:0.65rem;color:var(--secondary);">(current)</span>';
+                    }
+                });
+                
+                updateStepIndicator();
+                lucide.createIcons();
+            } catch (e) { showToast('Failed to load question.', 'error'); }
+        }
+
+        function handleQuestionImageSelect() {
+            const file = document.getElementById('aq-question-image').files[0];
+            if (file) {
+                questionImageFile = file;
+                // Show preview of new image
+                document.getElementById('aq-question-image-name').innerHTML = '<img src="' + URL.createObjectURL(file) + '" style="max-width:100px;max-height:60px;vertical-align:middle;border-radius:4px;margin-left:0.5rem;"> <span style="font-size:0.7rem;color:var(--success);margin-left:0.5rem;">(new)</span>';
+            }
+        }
+
+        function handleOptionImageSelect(opt) {
+            const file = document.getElementById('aq-option-' + opt + '-image').files[0];
+            if (file) {
+                optionImages[opt] = file;
+                // Show preview of new image
+                document.getElementById('aq-option-' + opt + '-image-name').innerHTML = '<img src="' + URL.createObjectURL(file) + '" style="max-width:60px;max-height:40px;border-radius:4px;"> <span style="font-size:0.65rem;color:var(--success);">(new)</span>';
+            }
+        }
+
+        async function saveQuestionFromPage() {
+            const subject = document.getElementById('aq-subject').value.trim();
+            const exam_body = document.getElementById('aq-exam-body').value;
+            const year = document.getElementById('aq-year').value.trim();
+            const question_text = document.getElementById('aq-question-text').value.trim();
+            const option_a = document.getElementById('aq-option-a').value.trim();
+            const option_b = document.getElementById('aq-option-b').value.trim();
+            const option_c = document.getElementById('aq-option-c').value.trim();
+            const option_d = document.getElementById('aq-option-d').value.trim();
+            const correct_option = document.getElementById('aq-correct-option').value;
+
+            if (!subject || !exam_body || !year || !question_text || !option_a || !option_b || !option_c || !option_d || correct_option === '') {
+                showToast('Please fill all required fields.', 'error');
+                return;
+            }
+
+            try {
+                let question_image_url = currentEditQuestion?.question_image || '';
+                let option_images = {
+                    option_a_image: currentEditQuestion?.option_a_image || '',
+                    option_b_image: currentEditQuestion?.option_b_image || '',
+                    option_c_image: currentEditQuestion?.option_c_image || '',
+                    option_d_image: currentEditQuestion?.option_d_image || ''
+                };
+
+                if (questionImageFile) {
+                    const fd = new FormData();
+                    fd.append('image', questionImageFile);
+                    const imgRes = await fetchAPI('api.php?route=questions/image', { method: 'POST', body: fd });
+                    question_image_url = imgRes.image_url;
+                }
+
+                for (const [opt, file] of Object.entries(optionImages)) {
+                    if (file) {
+                        const fd = new FormData();
+                        fd.append('image', file);
+                        const imgRes = await fetchAPI('api.php?route=questions/image', { method: 'POST', body: fd });
+                        option_images['option_' + opt + '_image'] = imgRes.image_url;
+                    }
+                }
+
+                const payload = {
+                    subject, exam_body, year, question_text,
+                    option_a, option_b, option_c, option_d, correct_option,
+                    question_image: question_image_url,
+                    ...option_images
+                };
+
+                if (currentEditQuestion) {
+                    await fetchAPI('api.php?route=questions/' + currentEditQuestion.id, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    showToast('Question updated!', 'success');
+                } else {
+                    await fetchAPI('api.php?route=questions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    showToast('Question added!', 'success');
+                }
+
+                closeAddQuestionPage();
+            } catch (e) { showToast('Failed to save question.', 'error'); }
+        }
+
+        async function handleFileUpload() {
+            const file = document.getElementById('csvFile').files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('uploadStatus');
+            statusEl.innerHTML = `<p style="color:var(--primary);font-weight:600;">⬆ Uploading ${file.name}…</p>`;
+
+            const examBody = document.getElementById('uploadExamBody')?.value;
+            const year = document.getElementById('uploadYear')?.value;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            if (examBody) formData.append('exam_body', examBody);
+            if (year) formData.append('year', year);
+
+            try {
+                const res = await fetch(apiUrl('/admin/questions'), {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    statusEl.innerHTML = `<p style="color:var(--success);font-weight:700;">✓ ${data.message}</p>`;
+                    showToast(data.message, 'success');
+                    loadQuestions(); loadStats();
+                } else {
+                    statusEl.innerHTML = `<p style="color:var(--danger);font-weight:700;">✗ ${data.error}</p>`;
+                    showToast(data.error, 'error');
+                }
+            } catch (e) {
+                statusEl.innerHTML = `<p style="color:var(--danger);font-weight:700;">✗ Upload failed. Check server.</p>`;
+                showToast('Upload failed.', 'error');
+            }
+            document.getElementById('csvFile').value = '';
+        }
+
+        // =================== USERS ===================
+        async function loadUsers() {
+            try {
+                const users = await fetchAPI('api.php?route=users');
+                const isSuperAdmin = currentUser?.role === 'super_admin';
+                document.querySelector('#usersTable tbody').innerHTML = users.map(u => `
+                    <tr>
+                        <td><strong>${u.username}</strong></td>
+                        <td>${u.full_name || '—'}</td>
+                        <td><span class="role-badge ${u.role === 'super_admin' ? 'role-super' : 'role-admin'}">${u.role.replace('_', ' ')}</span></td>
+                        <td style="font-size:0.82rem;color:var(--secondary);">${(u.permissions || []).join(', ') || '—'}</td>
+                        <td>
+                            <button class="btn-primary" style="padding:0.3rem 0.6rem;font-size:0.75rem;" onclick="openEditUserModal(${u.id}, '${u.username}', '${u.full_name || ''}', '${u.role}', '${(u.permissions || []).join(',')}')"><i data-lucide="edit-2" size="12"></i> Edit</button>
+                            ${isSuperAdmin && u.id !== currentUser?.id ? `<button class="btn-danger" style="padding:0.3rem 0.6rem;font-size:0.75rem;margin-left:0.25rem;" onclick="deleteUser(${u.id})"><i data-lucide="trash-2" size="12"></i></button>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+                lucide.createIcons();
+            } catch (e) { showToast('Failed to load users.', 'error'); }
+        }
+
+        function openEditUserModal(id, username, fullName, role, permissions) {
+            document.getElementById('edit-user-id').value = id;
+            document.getElementById('edit-username').value = username;
+            document.getElementById('edit-fullname').value = fullName;
+            document.getElementById('edit-password').value = '';
+            document.getElementById('edit-role').value = role;
+            document.querySelectorAll('.perm-checkbox').forEach(cb => {
+                cb.checked = permissions.split(',').includes(cb.value);
+            });
+            document.getElementById('editUserModal').classList.remove('hidden');
+        }
+
+        function closeEditUserModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('editUserModal').classList.add('hidden');
+        }
+
+        async function saveUserEdit() {
+            const id = document.getElementById('edit-user-id').value;
+            const username = document.getElementById('edit-username').value.trim();
+            const full_name = document.getElementById('edit-fullname').value.trim();
+            const password = document.getElementById('edit-password').value;
+            const role = document.getElementById('edit-role').value;
+            const permissions = Array.from(document.querySelectorAll('.perm-checkbox:checked')).map(c => c.value);
+
+            if (!username) { showToast('Username is required.', 'error'); return; }
+
+            try {
+                await fetchAPI('api.php?route=users/' + id, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, full_name, role, permissions, password: password || undefined })
+                });
+                showToast('User updated successfully!', 'success');
+                closeEditUserModal({ target: document.getElementById('editUserModal'), stopPropagation: () => {} });
+                loadUsers();
+            } catch (e) { showToast('Failed to update user.', 'error'); }
+        }
+
+        async function createUser() {
+            const username = document.getElementById('nu-username').value.trim();
+            const full_name = document.getElementById('nu-fullname').value.trim();
+            const password = document.getElementById('nu-password').value;
+            const role = document.getElementById('nu-role').value;
+            const permissions = Array.from(document.querySelectorAll('#usersContent input[type="checkbox"]:checked')).map(c => c.value);
+
+            if (!username || !password) { showToast('Username and password are required.', 'error'); return; }
+
+            try {
+                const res = await fetchAPI('api.php?route=users/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, full_name, role, permissions })
+                });
+                showToast('User created successfully!', 'success');
+                document.getElementById('nu-username').value = '';
+                document.getElementById('nu-fullname').value = '';
+                document.getElementById('nu-password').value = '';
+                loadUsers();
+            } catch (e) { showToast('Failed to create user.', 'error'); }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Are you sure you want to delete this admin user?')) return;
+            try {
+                await fetchAPI(`api.php?route=users/${id}`, { method: 'DELETE' });
+                showToast('User deleted.', 'success');
+                loadUsers();
+            } catch (e) { showToast('Failed to delete user.', 'error'); }
+        }
+
+        // =================== ACTIVITY ===================
+        function activityItemHtml(l) {
+            return `
+            <div class="activity-item">
+                <div class="activity-icon"><i data-lucide="activity" size="16"></i></div>
+                <div class="activity-body">
+                    <div class="activity-header">
+                        <span class="activity-user">${l.display_name || l.admin_username || 'System'}</span>
+                        <span class="activity-time">${new Date(l.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="activity-text"><strong>${l.action}</strong>: ${l.details}</div>
+                </div>
+            </div>`;
+        }
+
+        async function loadActivity() {
+            try {
+                const logs = await fetchAPI('api.php?route=activity');
+                document.getElementById('activityFeed').innerHTML = logs.length
+                    ? logs.map(l => activityItemHtml(l)).join('')
+                    : '<p style="color:var(--text-sub);padding:1rem;">No activity recorded yet.</p>';
+                lucide.createIcons();
+            } catch (e) { document.getElementById('activityFeed').innerHTML = '<p style="color:var(--danger);">Failed to load activity.</p>'; }
+        }
+
+        // =================== TABS ===================
+        function showTab(tabName, event) {
+            // Save current tab to localStorage
+            lastActiveTab = tabName;
+            localStorage.setItem('chx_last_tab', tabName);
+            
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('mainPanelContent').classList.remove('hidden');
+            document.getElementById('addQuestionPage').classList.add('hidden');
+            
+            ['stats', 'licenses', 'questions', 'users', 'activity', 'profile', 'how-to'].forEach(t => {
+                const el = document.getElementById(t + 'Content');
+                if (el) el.classList.add('hidden');
+            });
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+            const tabEl = document.getElementById(tabName + 'Content');
+            if (tabEl) tabEl.classList.remove('hidden');
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+
+            const labels = { 'stats': 'Dashboard', 'licenses': 'Licenses', 'questions': 'Questions', 'users': 'Users', 'activity': 'Activity', 'profile': 'My Profile', 'how-to': 'How To' };
+            document.getElementById('breadcrumb').innerText = 'Pages / ' + (labels[tabName] || tabName);
+            document.getElementById('pageTitle').innerText = labels[tabName] || tabName;
+
+            if (tabName === 'licenses') loadLicenses();
+            if (tabName === 'questions') loadQuestions();
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'activity') loadActivity();
+            if (tabName === 'profile') fetchProfile();
+
+            // Close mobile sidebar
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+
+            lucide.createIcons();
+        }
+
+        // =================== SIDEBAR ===================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        function toggleSidebarCollapse() {
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('collapsed');
+            lucide.createIcons();
+        }
+
+        // =================== TOAST ===================
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'show ' + type;
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => { t.className = ''; }, 3500);
+        }
+
+        // =================== ADD QUESTION PAGEFLOW ===================
+        let addQuestionStep = 1;
+        
+        function showAddQuestionPage() {
+            document.getElementById('sidebar').classList.add('hidden');
+            document.getElementById('mainPanelContent').classList.add('hidden');
+            document.getElementById('addQuestionPage').classList.remove('hidden');
+            addQuestionStep = 1;
+            resetAddQuestionForm();
+            updateStepIndicator();
+            lucide.createIcons();
+        }
+
+        function closeAddQuestionPage() {
+            document.getElementById('addQuestionPage').classList.add('hidden');
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('mainPanelContent').classList.remove('hidden');
+            loadQuestions();
+            loadStats();
+        }
+
+        function resetAddQuestionForm() {
+            document.getElementById('aq-subject').value = '';
+            document.getElementById('aq-exam-body').value = 'JAMB';
+            document.getElementById('aq-year').value = new Date().getFullYear().toString();
+            document.getElementById('aq-question-text').value = '';
+            document.getElementById('aq-option-a').value = '';
+            document.getElementById('aq-option-b').value = '';
+            document.getElementById('aq-option-c').value = '';
+            document.getElementById('aq-option-d').value = '';
+            document.getElementById('aq-correct-option').value = '';
+            document.getElementById('aq-question-image-name').innerHTML = '';
+            ['a','b','c','d'].forEach(o => {
+                document.getElementById('aq-option-' + o + '-image-name').innerHTML = '';
+            });
+            document.getElementById('aq-preview-area').innerHTML = '';
+            currentEditQuestion = null;
+            questionImageFile = null;
+            optionImages = { a: null, b: null, c: null, d: null };
+        }
+
+        function updateStepIndicator() {
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById('step-' + i);
+                if (i === addQuestionStep) {
+                    step.className = 'step-item active';
+                } else if (i < addQuestionStep) {
+                    step.className = 'step-item completed';
+                } else {
+                    step.className = 'step-item';
+                }
+            }
+            document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('step-' + addQuestionStep + '-content').classList.remove('hidden');
+            
+            // Update navigation buttons
+            document.getElementById('aq-prev-btn').disabled = addQuestionStep === 1;
+            document.getElementById('aq-next-text').textContent = addQuestionStep === 4 ? 'Save Question' : 'Next';
+            
+            // Generate preview on step 4
+            if (addQuestionStep === 4) {
+                previewQuestion();
+            }
+        }
+
+        function nextStep() {
+            if (addQuestionStep === 1) {
+                const subject = document.getElementById('aq-subject').value.trim();
+                const examBody = document.getElementById('aq-exam-body').value;
+                const year = document.getElementById('aq-year').value.trim();
+                if (!subject || !year) { showToast('Please fill subject and year.', 'error'); return; }
+            } else if (addQuestionStep === 2) {
+                const qText = document.getElementById('aq-question-text').value.trim();
+                if (!qText) { showToast('Please enter question text.', 'error'); return; }
+            } else if (addQuestionStep === 3) {
+                const optA = document.getElementById('aq-option-a').value.trim();
+                const optB = document.getElementById('aq-option-b').value.trim();
+                const optC = document.getElementById('aq-option-c').value.trim();
+                const optD = document.getElementById('aq-option-d').value.trim();
+                const correct = document.getElementById('aq-correct-option').value;
+                if (!optA || !optB || !optC || !optD || correct === '') { showToast('Please fill all options and select correct answer.', 'error'); return; }
+            }
+            if (addQuestionStep < 4) {
+                addQuestionStep++;
+                updateStepIndicator();
+            } else {
+                saveQuestionFromPage();
+            }
+        }
+
+        function prevStep() {
+            if (addQuestionStep > 1) {
+                addQuestionStep--;
+                updateStepIndicator();
+            }
+        }
+
+        function previewQuestion() {
+            const subject = document.getElementById('aq-subject').value;
+            const examBody = document.getElementById('aq-exam-body').value;
+            const year = document.getElementById('aq-year').value;
+            const qText = document.getElementById('aq-question-text').value;
+            const optA = document.getElementById('aq-option-a').value;
+            const optB = document.getElementById('aq-option-b').value;
+            const optC = document.getElementById('aq-option-c').value;
+            const optD = document.getElementById('aq-option-d').value;
+            const correct = document.getElementById('aq-correct-option').value;
+            const labels = ['A', 'B', 'C', 'D'];
+            
+            // Get question image - either from new file upload or existing
+            let questionImgHtml = '';
+            if (questionImageFile) {
+                questionImgHtml = '<br><img src="' + URL.createObjectURL(questionImageFile) + '" style="max-width:200px;max-height:150px;border-radius:8px;margin-top:0.5rem;">';
+            } else if (currentEditQuestion?.question_image) {
+                questionImgHtml = '<br><img src="' + BACKEND_URL + currentEditQuestion.question_image + '" style="max-width:200px;max-height:150px;border-radius:8px;margin-top:0.5rem;">';
+            }
+            
+            // Get option images
+            const optionImgUrls = [];
+            ['a', 'b', 'c', 'd'].forEach((opt, i) => {
+                if (optionImages[opt]) {
+                    optionImgUrls[i] = URL.createObjectURL(optionImages[opt]);
+                } else if (currentEditQuestion?.['option_' + opt + '_image']) {
+                    optionImgUrls[i] = BACKEND_URL + currentEditQuestion['option_' + opt + '_image'];
+                }
+            });
+            
+            document.getElementById('aq-preview-area').innerHTML = `
+                <div style="background:white;padding:1.5rem;border-radius:12px;border:1px solid var(--border);margin-top:1rem;">
+                    <div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+                        <span class="role-badge role-super">${examBody}</span>
+                        <span style="font-size:0.8rem;color:var(--secondary);">${year}</span>
+                        <span style="font-size:0.8rem;font-weight:600;">${subject}</span>
+                    </div>
+                    <p style="font-size:1.1rem;margin-bottom:0.5rem;line-height:1.6;"><strong>${qText}</strong></p>
+                    ${questionImgHtml}
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:1rem;">
+                        ${[optA,optB,optC,optD].map((opt, i) => `
+                            <div style="padding:0.75rem;border-radius:8px;background:${i == correct ? '#dcfce7' : '#f8fafc'};border:1px solid ${i == correct ? '#22c55e' : 'var(--border)'};">
+                                <strong>${labels[i]}:</strong> ${opt}
+                                ${optionImgUrls[i] ? '<br><img src="' + optionImgUrls[i] + '" style="max-width:100px;max-height:60px;border-radius:4px;margin-top:0.25rem;">' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Init icons
+        lucide.createIcons();
+    </script>
+
+    <!-- ADD QUESTION PAGEFLOW -->
+    <div id="addQuestionPage" class="hidden" style="position:fixed;inset:0;background:var(--primary-bg);z-index:1000;overflow-y:auto;padding:2rem;">
+        <div style="max-width:1300px;margin:0 auto;">
+            <div class="content-card" style="padding:2rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+                    <h2 style="font-size:1.3rem;font-weight:800;">Add New Question</h2>
+                    <button class="btn-primary" style="background:var(--secondary);" onclick="closeAddQuestionPage()">
+                        <i data-lucide="x" size="16"></i> Cancel
+                    </button>
+                </div>
+                
+                <!-- Step Indicator -->
+                <div style="display:flex;justify-content:space-between;margin-bottom:2rem;position:relative;padding:0 1rem;">
+                    <div style="position:absolute;top:20px;left:15%;right:15%;height:2px;background:var(--border);z-index:0;"></div>
+                    <div id="step-1" class="step-item active" style="z-index:1;text-align:center;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto;">1</div>
+                        <span style="font-size:0.75rem;font-weight:600;margin-top:0.5rem;display:block;">Details</span>
+                    </div>
+                    <div id="step-2" class="step-item" style="z-index:1;text-align:center;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:var(--border);color:var(--text-main);display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto;">2</div>
+                        <span style="font-size:0.75rem;font-weight:600;margin-top:0.5rem;display:block;">Question</span>
+                    </div>
+                    <div id="step-3" class="step-item" style="z-index:1;text-align:center;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:var(--border);color:var(--text-main);display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto;">3</div>
+                        <span style="font-size:0.75rem;font-weight:600;margin-top:0.5rem;display:block;">Options</span>
+                    </div>
+                    <div id="step-4" class="step-item" style="z-index:1;text-align:center;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:var(--border);color:var(--text-main);display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto;">4</div>
+                        <span style="font-size:0.75rem;font-weight:600;margin-top:0.5rem;display:block;">Preview</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Basic Details -->
+                <div id="step-1-content" class="step-content">
+                    <div class="form-grid" style="gap:1rem;">
+                        <div class="form-group">
+                            <label>Subject *</label>
+                            <input type="text" id="aq-subject" placeholder="e.g. Mathematics" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                        </div>
+                        <div class="form-group">
+                            <label>Exam Body *</label>
+                            <select id="aq-exam-body" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                                <option value="JAMB">JAMB</option>
+                                <option value="WAEC">WAEC</option>
+                                <option value="NECO">NECO</option>
+                                <option value="NABTEB">NABTEB</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Year *</label>
+                            <input type="text" id="aq-year" placeholder="e.g. 2024" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Question Text -->
+                <div id="step-2-content" class="step-content hidden">
+                    <div class="form-group" style="margin-bottom:1.5rem;">
+                        <label>Question Text *</label>
+                        <textarea id="aq-question-text" rows="5" placeholder="Enter the question..." style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);font-size:0.9rem;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Question Image (Optional)</label>
+                        <input type="file" id="aq-question-image" accept="image/*" class="hidden" onchange="handleQuestionImageSelect()">
+                        <button type="button" class="btn-primary" style="padding:0.5rem 1rem;margin-top:0.5rem;" onclick="document.getElementById('aq-question-image').click()">
+                            <i data-lucide="image" size="16"></i> Browse Image
+                        </button>
+                        <span id="aq-question-image-name" style="margin-left:1rem;font-size:0.85rem;color:var(--secondary);vertical-align:middle;"></span>
+                    </div>
+                </div>
+
+                <!-- Step 3: Options -->
+                <div id="step-3-content" class="step-content hidden">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+                        <div class="form-group">
+                            <label>Option A *</label>
+                            <input type="text" id="aq-option-a" placeholder="Option A text" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                        </div>
+                        <div class="form-group">
+                            <label>Option B *</label>
+                            <input type="text" id="aq-option-b" placeholder="Option B text" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                        </div>
+                        <div class="form-group">
+                            <label>Option C *</label>
+                            <input type="text" id="aq-option-c" placeholder="Option C text" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                        </div>
+                        <div class="form-group">
+                            <label>Option D *</label>
+                            <input type="text" id="aq-option-d" placeholder="Option D text" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:1.5rem;">
+                        <label>Correct Answer *</label>
+                        <select id="aq-correct-option" style="width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);">
+                            <option value="">Select correct option</option>
+                            <option value="0">Option A</option>
+                            <option value="1">Option B</option>
+                            <option value="2">Option C</option>
+                            <option value="3">Option D</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:1.5rem;padding:1rem;background:var(--primary-bg);border-radius:12px;">
+                        <p style="font-weight:600;font-size:0.9rem;margin-bottom:0.75rem;">Add Images to Options (Optional)</p>
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                            <div>
+                                <input type="file" id="aq-option-a-image" accept="image/*" class="hidden" onchange="handleOptionImageSelect('a')">
+                                <button type="button" onclick="document.getElementById('aq-option-a-image').click()" style="padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:white;">Option A Image</button>
+                                <span id="aq-option-a-image-name" class="img-name" style="display:block;font-size:0.75rem;margin-top:0.25rem;"></span>
+                            </div>
+                            <div>
+                                <input type="file" id="aq-option-b-image" accept="image/*" class="hidden" onchange="handleOptionImageSelect('b')">
+                                <button type="button" onclick="document.getElementById('aq-option-b-image').click()" style="padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:white;">Option B Image</button>
+                                <span id="aq-option-b-image-name" class="img-name" style="display:block;font-size:0.75rem;margin-top:0.25rem;"></span>
+                            </div>
+                            <div>
+                                <input type="file" id="aq-option-c-image" accept="image/*" class="hidden" onchange="handleOptionImageSelect('c')">
+                                <button type="button" onclick="document.getElementById('aq-option-c-image').click()" style="padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:white;">Option C Image</button>
+                                <span id="aq-option-c-image-name" class="img-name" style="display:block;font-size:0.75rem;margin-top:0.25rem;"></span>
+                            </div>
+                            <div>
+                                <input type="file" id="aq-option-d-image" accept="image/*" class="hidden" onchange="handleOptionImageSelect('d')">
+                                <button type="button" onclick="document.getElementById('aq-option-d-image').click()" style="padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:white;">Option D Image</button>
+                                <span id="aq-option-d-image-name" class="img-name" style="display:block;font-size:0.75rem;margin-top:0.25rem;"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Preview -->
+                <div id="step-4-content" class="step-content hidden">
+                    <div id="aq-preview-area"></div>
+                </div>
+
+                <!-- Navigation -->
+                <div style="display:flex;justify-content:space-between;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+                    <button id="aq-prev-btn" class="btn-primary" style="background:var(--secondary);" onclick="prevStep()" disabled>
+                        <i data-lucide="chevron-left" size="16"></i> Previous
+                    </button>
+                    <button class="btn-primary" onclick="nextStep()">
+                        <span id="aq-next-text">Next</span> <i data-lucide="chevron-right" size="16"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .step-item { display:flex;flex-direction:column;align-items:center; }
+        .step-item.active div { background:var(--primary);color:white; }
+        .step-item.completed div { background:var(--success);color:white; }
+        .step-content { display:block; }
+        .step-content.hidden { display:none; }
+    </style>
+
+    <!-- EDIT USER MODAL -->
+    <div id="editUserModal" class="modal-overlay hidden" onclick="closeEditUserModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Edit Administrator</h2>
+                <button class="modal-close" onclick="closeEditUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-user-id">
+                <div class="form-grid">
+                    <div class="form-group"><label>Username</label><input type="text" id="edit-username" placeholder="Username"></div>
+                    <div class="form-group"><label>Full Name</label><input type="text" id="edit-fullname" placeholder="Full Name"></div>
+                    <div class="form-group"><label>New Password</label><input type="password" id="edit-password" placeholder="Leave empty to keep"></div>
+                    <div class="form-group"><label>Role</label>
+                        <select id="edit-role">
+                            <option value="admin">Standard Admin</option>
+                            <option value="super_admin">Super Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Permissions</label>
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem;">
+                            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="checkbox" value="stats" class="perm-checkbox"> Stats</label>
+                            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="checkbox" value="licenses" class="perm-checkbox"> Licenses</label>
+                            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="checkbox" value="questions" class="perm-checkbox"> Questions</label>
+                            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="checkbox" value="activity" class="perm-checkbox"> Activity</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" style="background:var(--secondary);" onclick="closeEditUserModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveUserEdit()"><i data-lucide="save" size="16"></i>Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BULK CHANGE MODAL -->
+    <div id="bulkChangeModal" class="modal-overlay hidden" onclick="closeBulkChangeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="bulkChangeTitle">Bulk Change</h2>
+                <button class="modal-close" onclick="closeBulkChangeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bulkExamBodySelect" class="form-group hidden">
+                    <label>Select Exam Body</label>
+                    <select id="bulk-exam-body-target">
+                        <option value="JAMB">JAMB</option>
+                        <option value="WAEC">WAEC</option>
+                        <option value="NECO">NECO</option>
+                        <option value="NABTEB">NABTEB</option>
+                    </select>
+                </div>
+                <div id="bulkYearSelect" class="form-group hidden">
+                    <label>Enter Year</label>
+                    <input type="text" id="bulk-year-target" placeholder="e.g. 2024">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" style="background:var(--secondary);" onclick="closeBulkChangeModal()">Cancel</button>
+                <button class="btn-primary" id="bulkConfirmBtn" onclick="confirmBulkChange()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-overlay {
+            position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;
+        }
+        .modal-content {
+            background:white;border-radius:16px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;
+            box-shadow:0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display:flex;justify-content:space-between;align-items:center;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);
+        }
+        .modal-header h2 {font-size:1.2rem;font-weight:800;}
+        .modal-close {
+            background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--secondary);
+        }
+        .modal-body {padding:1.5rem;}
+        .modal-footer {
+            display:flex;justify-content:flex-end;gap:0.75rem;padding:1rem 1.5rem;border-top:1px solid var(--border);
+        }
+        textarea {width:100%;padding:0.85rem;border-radius:12px;border:1.5px solid var(--border);font-size:0.9rem;resize:vertical;}
+        textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(67,24,255,0.08);}
+        .options-grid {display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+        .option-box {
+            background:var(--primary-bg);padding:1rem;border-radius:12px;position:relative;
+        }
+        .option-box label {font-weight:700;font-size:0.8rem;color:var(--primary);margin-bottom:0.5rem;display:block;}
+        .option-box input[type="text"] {width:100%;padding:0.6rem;border-radius:8px;border:1px solid var(--border);font-size:0.85rem;}
+        .img-btn {
+            position:absolute;top:0.5rem;right:0.5rem;background:white;border:1px solid var(--border);
+            padding:0.25rem;border-radius:4px;cursor:pointer;color:var(--secondary);
+        }
+        .img-btn:hover {background:var(--primary-bg);color:var(--primary);}
+        .img-name {font-size:0.7rem;color:var(--secondary);margin-top:0.25rem;display:block;}
+    </style>
+</body>
+
+</html>
