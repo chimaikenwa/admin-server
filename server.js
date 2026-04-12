@@ -11,23 +11,6 @@ const csv = require('csv-parser');
 
 const app = express();
 
-app.get('/create-admin', async (req, res) => {
-    try {
-        const hash = await argon2.hash("admin123");
-
-        await db.query(
-            "INSERT INTO administrators (username, password_hash, role) VALUES ($1, $2, $3)",
-            ["admin", hash, "super_admin"]
-        );
-
-        res.send("✅ Admin created successfully");
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("❌ Error creating admin");
-    }
-});
-
 // Allow local development origins
 app.use(cors({
     origin: [
