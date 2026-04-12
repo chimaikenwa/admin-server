@@ -1413,11 +1413,16 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             errEl.textContent = '';
 
             try {
-                const res = await fetch('api.php?route=login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p)
-                });
+                const res = await fetch("https://admin-server-sujv.onrender.com/api/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        username: u,
+        password: p
+    })
+});
                 if (res.ok) {
                     const data = await res.json();
                     token = data.token;
@@ -1474,7 +1479,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         // =================== PROFILE ===================
         async function fetchProfile() {
             try {
-                currentUser = await fetchAPI('api.php?route=profile');
+                currentUser = await fetchAPI('https://admin-server-sujv.onrender.com/api/profile');
                 const name = currentUser.full_name || currentUser.username;
                 document.getElementById('adminNameDisplay').innerText = name;
                 document.getElementById('profFullName').value = currentUser.full_name || '';
