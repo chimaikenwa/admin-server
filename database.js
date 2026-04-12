@@ -1,40 +1,57 @@
 const { Pool } = require('pg');
 
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "set" : "NOT SET");
+
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || "postgresql://chilex_db_user:6KQ1sbMiYxjyssxpvBTpihImutZsFzsN@dpg-d7dkr11j2pic73flt38g-a.ohio-postgres.render.com/chilex_db",
-    ssl: {
-        rejectUnauthorized: false
-    }
+    connectionString: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/chilex",
+    ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// PostgreSQL wrapper with SQLite-compatible API
+// Convert PostgreSQL $1, $2 to ? for backward compatibility
+function convertParams(sql, params) {
+    if (!params || params.length === 0) return { sql, params };
+    // If already using $1, $2 syntax, return as-is
+    if (sql.includes('$1')) return { sql, params };
+    // Convert ? to $1, $2, ...
+    let newSql = sql;
+    for (let i = 0; i < params.length; i++) {
+        newSql = newSql.replace('?', '$' + (i + 1));
+    }
+    return { sql: newSql, params };
+}
+
+// PostgreSQL wrapper - supports both async/await AND callback style
 const db = {
-    run(sql, params = []) {
-        return new Promise((resolve, reject) => {
-            pool.query(sql, params)
-                .then(result => resolve({ changes: result.rowCount }))
-                .catch(err => reject(err));
-        });
+    // Async/await style (PostgreSQL native)
+    async query(sql, params) {
+        const { sql: converted, params: convertedParams } = convertParams(sql, params);
+        console.log("QUERY:", converted, convertedParams);
+        return pool.query(converted, convertedParams);
     },
     
-    get(sql, params = []) {
-        return new Promise((resolve, reject) => {
-            pool.query(sql, params)
-                .then(result => resolve(result.rows[0] || null))
-                .catch(err => reject(err));
-        });
+    // Callback style (backward compatible with old SQLite code)
+    run(sql, params = [], callback) {
+        const { sql: converted, params: convertedParams } = convertParams(sql, params);
+        pool.query(converted, convertedParams)
+            .then(result => callback(null, { changes: result.rowCount }))
+            .catch(err => callback(err));
     },
     
-    all(sql, params = []) {
-        return new Promise((resolve, reject) => {
-            pool.query(sql, params)
-                .then(result => resolve(result.rows))
-                .catch(err => reject(err));
-        });
+    get(sql, params = [], callback) {
+        const { sql: converted, params: convertedParams } = convertParams(sql, params);
+        pool.query(converted, convertedParams)
+            .then(result => callback(null, result.rows[0] || null))
+            .catch(err => callback(err));
     },
     
-    // Also expose async/await versions for direct PostgreSQL access
-    query: (...args) => pool.query(...args),
+    all(sql, params = [], callback) {
+        const { sql: converted, params: convertedParams } = convertParams(sql, params);
+        pool.query(converted, convertedParams)
+            .then(result => callback(null, result.rows))
+            .catch(err => callback(err));
+    },
+    
+    // Expose pool for direct access
     pool: pool
 };
 

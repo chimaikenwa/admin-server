@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const argon2 = require('argon2');
+const bcrypt = require('bcrypt');
 const multer = require('multer');
 const db = require('./database');
 const crypto = require('crypto');
@@ -74,63 +74,84 @@ const superOnly = (req, res, next) => {
 /* --- ADMIN AUTH ROUTES --- */
 app.post('/api/admin/login', async (req, res) => {
     const { username, password } = req.body;
-    db.get("SELECT * FROM administrators WHERE username = ?", [username], async (err, row) => {
-        if (err || !row) return res.status(401).json({ error: 'Invalid credentials' });
-        try {
-            if (await argon2.verify(row.password_hash, password)) {
-                const token = jwt.sign({ id: row.id, username: row.username }, SECRET_KEY, { expiresIn: '24h' });
-                res.json({ token });
-            } else {
-                res.status(401).json({ error: 'Invalid credentials' });
-            }
-        } catch (error) {
-            res.status(500).json({ error: 'Server error' });
+    console.log("Login attempt for:", username);
+    
+    try {
+        const result = await db.query("SELECT * FROM administrators WHERE username = $1", [username]);
+        const row = result.rows[0];
+        
+        if (!row) {
+            console.log("User not found:", username);
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
-    });
+        
+        if (bcrypt.compareSync(password, row.password_hash)) {
+            const token = jwt.sign({ id: row.id, username: row.username }, SECRET_KEY, { expiresIn: '24h' });
+            console.log("Login success:", username);
+            res.json({ token });
+        } else {
+            console.log("Wrong password for:", username);
+            res.status(401).json({ error: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error("LOGIN ERROR:", error);
+        res.status(500).json({ error: 'Server error: ' + error.message });
+    }
+});
 });
 
 /* --- LICENSE ROUTES (FOR DESKTOP APP) --- */
-app.post('/api/licenses/validate', (req, res) => {
+app.post('/api/licenses/validate', async (req, res) => {
     const { license_key, machine_id } = req.body;
-    db.get("SELECT * FROM licenses WHERE license_key = ?", [license_key], (err, row) => {
-        if (err || !row) return res.status(404).json({ valid: false, error: 'License not found' });
+    try {
+        const result = await db.query("SELECT * FROM licenses WHERE license_key = $1", [license_key]);
+        const row = result.rows[0];
+        
+        if (!row) return res.status(404).json({ valid: false, error: 'License not found' });
         if (row.status !== 'active') return res.status(403).json({ valid: false, error: `License is ${row.status}` });
 
         // Lock to machine if first use
         if (!row.machine_id && machine_id) {
-            db.run("UPDATE licenses SET machine_id = ? WHERE id = ?", [machine_id, row.id]);
+            await db.query("UPDATE licenses SET machine_id = $1 WHERE id = $2", [machine_id, row.id]);
             return res.json({ valid: true, message: 'License verified and bound to this PC.' });
         } else if (row.machine_id === machine_id || !machine_id) {
             return res.json({ valid: true, message: 'License verified.' });
         } else {
             return res.status(403).json({ valid: false, error: 'License is bound to another PC.' });
         }
-    });
+    } catch (error) {
+        console.error("LICENSE VALIDATE ERROR:", error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 /* --- ADMIN API ROUTES --- */
-app.get('/api/admin/stats', authenticateToken, checkPermission('stats'), (req, res) => {
-    db.get("SELECT COUNT(*) as total_licenses FROM licenses", [], (err, lr) => {
-        db.get("SELECT COUNT(*) as total_questions FROM questions", [], (err2, qr) => {
-            db.get("SELECT COUNT(*) as active_licenses FROM licenses WHERE status = 'active'", [], (err3, ar) => {
-                db.get("SELECT COUNT(*) as used_licenses FROM licenses WHERE status = 'used'", [], (err4, ur) => {
-                    res.json({
-                        total_licenses: lr?.total_licenses || 0,
-                        total_questions: qr?.total_questions || 0,
-                        active_licenses: ar?.active_licenses || 0,
-                        used_licenses: ur?.used_licenses || 0
-                    });
-                });
-            });
+app.get('/api/admin/stats', authenticateToken, checkPermission('stats'), async (req, res) => {
+    try {
+        const lr = await db.query("SELECT COUNT(*) as total_licenses FROM licenses");
+        const qr = await db.query("SELECT COUNT(*) as total_questions FROM questions");
+        const ar = await db.query("SELECT COUNT(*) as active_licenses FROM licenses WHERE status = 'active'");
+        const ur = await db.query("SELECT COUNT(*) as used_licenses FROM licenses WHERE status = 'used'");
+        
+        res.json({
+            total_licenses: parseInt(lr.rows[0]?.total_licenses) || 0,
+            total_questions: parseInt(qr.rows[0]?.total_questions) || 0,
+            active_licenses: parseInt(ar.rows[0]?.active_licenses) || 0,
+            used_licenses: parseInt(ur.rows[0]?.used_licenses) || 0
         });
-    });
+    } catch (error) {
+        console.error("STATS ERROR:", error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
-app.get('/api/admin/licenses', authenticateToken, checkPermission('licenses'), (req, res) => {
-    db.all("SELECT * FROM licenses ORDER BY id DESC", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ licenses: rows });
-    });
+app.get('/api/admin/licenses', authenticateToken, checkPermission('licenses'), async (req, res) => {
+    try {
+        const result = await db.query("SELECT * FROM licenses ORDER BY id DESC");
+        res.json({ licenses: result.rows });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.post('/api/admin/licenses/generate', authenticateToken, checkPermission('licenses'), (req, res) => {
@@ -307,7 +328,7 @@ app.patch('/api/admin/users/:id', authenticateToken, superOnly, async (req, res)
     if (parseInt(req.params.id) === req.user.id) return res.status(400).json({ error: 'Cannot edit yourself' });
     
     if (password) {
-        const hash = await argon2.hash(password);
+        const hash = bcrypt.hashSync(password, 10);
         db.run(`
             UPDATE administrators SET 
                 username = COALESCE(?, username),
@@ -464,7 +485,7 @@ app.get('/api/admin/users', authenticateToken, superOnly, (req, res) => {
 app.post('/api/admin/users/create', authenticateToken, superOnly, async (req, res) => {
     const { username, password, full_name, role, permissions } = req.body;
     try {
-        const hash = await argon2.hash(password);
+        const hash = bcrypt.hashSync(password, 10);
         db.run("INSERT INTO administrators (username, password_hash, full_name, role, permissions) VALUES (?, ?, ?, ?, ?)",
             [username, hash, full_name, role, JSON.stringify(permissions)], function (err) {
                 if (err) return res.status(400).json({ error: 'Username already exists' });
@@ -521,7 +542,7 @@ app.post('/api/admin/profile/update', authenticateToken, async (req, res) => {
     console.log(`Updating profile for admin ID: ${adminId}`, { full_name, phone });
 
     if (password) {
-        const hash = await argon2.hash(password);
+        const hash = bcrypt.hashSync(password, 10);
         db.run("UPDATE administrators SET full_name = ?, phone = ?, password_hash = ? WHERE id = ?",
             [full_name, phone, hash, adminId], function (err) {
                 if (err) {
