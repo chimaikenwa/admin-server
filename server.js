@@ -32,28 +32,29 @@ const upload = multer({ dest: path.join(__dirname, 'uploads') });
 const SECRET_KEY = process.env.SECRET_KEY || 'chilex_super_secret_override_me';
 
 // Utility: Log Activity
-const logActivity = (adminId, username, action, details) => {
-    db.run("INSERT INTO activity_logs (admin_id, admin_username, action, details) VALUES (?, ?, ?, ?)",
+const logActivity = async (adminId, username, action, details) => {
+    await db.run("INSERT INTO activity_logs (admin_id, admin_username, action, details) VALUES ($1, $2, $3, $4)",
         [adminId, username, action, details]);
 };
 
 // Utility: Verify Admin Token
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) return res.sendStatus(401);
-    jwt.verify(token, SECRET_KEY, (err, decoded) => {
-        if (err) return res.sendStatus(403);
-        // Fetch full user data including role and permissions
-        db.get("SELECT id, username, role, permissions FROM administrators WHERE id = ?", [decoded.id], (dbErr, user) => {
-            if (dbErr || !user) return res.sendStatus(401);
-            req.user = {
-                ...user,
-                permissions: user.permissions ? JSON.parse(user.permissions) : []
-            };
-            next();
-        });
-    });
+    
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        const user = await db.get("SELECT id, username, role, permissions FROM administrators WHERE id = $1", [decoded.id]);
+        if (!user) return res.sendStatus(401);
+        req.user = {
+            ...user,
+            permissions: user.permissions ? JSON.parse(user.permissions) : []
+        };
+        next();
+    } catch (err) {
+        return res.sendStatus(403);
+    }
 };
 
 // Middleware: Check Permission

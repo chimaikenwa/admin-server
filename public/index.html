@@ -1384,6 +1384,60 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         // For Node.js: Change to your server URL (e.g., 'http://localhost:4000')
         const BACKEND_URL = ''; // Uses relative paths
 
+        // Inactivity auto-logout settings
+        const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes in ms
+        const WARNING_BEFORE = 60 * 1000; // Show warning 1 minute before logout
+        let inactivityTimer = null;
+        let warningTimer = null;
+        let showWarningShown = false;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            clearTimeout(warningTimer);
+            showWarningShown = false;
+            document.getElementById('inactivityWarning')?.remove();
+            
+            if (token && document.getElementById('dashboardView').classList.contains('show') === false === false) {
+                inactivityTimer = setTimeout(autoLogout, INACTIVITY_TIMEOUT);
+                warningTimer = setTimeout(showInactivityWarning, INACTIVITY_TIMEOUT - WARNING_BEFORE);
+            }
+        }
+
+        function showInactivityWarning() {
+            if (showWarningShown) return;
+            showWarningShown = true;
+            
+            const warning = document.createElement('div');
+            warning.id = 'inactivityWarning';
+            warning.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;';
+            warning.innerHTML = `
+                <div style="background:white;padding:30px;border-radius:12px;text-align:center;max-width:400px;">
+                    <h2 style="margin-bottom:15px;color:#1f2937;">Session Expiring</h2>
+                    <p style="color:#6b7280;margin-bottom:20px;">You will be logged out in 1 minute due to inactivity.</p>
+                    <div style="display:flex;gap:12px;justify-content:center;">
+                        <button onclick="logout()" style="background:#ef4444;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">Logout Now</button>
+                        <button onclick="stayLoggedIn()" style="background:#3b82f6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;">Stay Logged In</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(warning);
+        }
+
+        function stayLoggedIn() {
+            resetInactivityTimer();
+        }
+
+        function autoLogout() {
+            logout();
+            showToast('Session expired due to inactivity', 'info');
+        }
+
+        // Track user activity
+        const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+        activityEvents.forEach(evt => {
+            document.addEventListener(evt, resetInactivityTimer, { passive: true });
+        });
+
         let token = localStorage.getItem('chx_admin_token');
         let currentUser = null;
 
@@ -1450,6 +1504,8 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             loadDashActivity();
             // Show last active tab
             showTab(lastActiveTab, null);
+            // Start inactivity timer
+            resetInactivityTimer();
             // Update nav active state
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             const lastNav = document.getElementById('nav-' + lastActiveTab);
@@ -1457,6 +1513,9 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         }
 
         function logout() {
+            clearTimeout(inactivityTimer);
+            clearTimeout(warningTimer);
+            document.getElementById('inactivityWarning')?.remove();
             localStorage.removeItem('chx_admin_token');
             token = null;
             currentUser = null;
