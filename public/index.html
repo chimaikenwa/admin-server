@@ -1528,6 +1528,13 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
 
         // =================== API HELPER ===================
         async function fetchAPI(url, options = {}) {
+            // Get fresh token from localStorage each time
+            const authToken = localStorage.getItem('chx_admin_token');
+            if (!authToken) {
+                logout();
+                throw new Error('No token');
+            }
+            
             // Fix hardcoded URLs - use relative paths for Node.js
             let apiUrl = url;
             if (url.startsWith('http')) {
@@ -1539,7 +1546,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             apiUrl = apiUrl.replace('api.php?route=', 'api/admin/');
             apiUrl = apiUrl.replace('api.php', 'api/admin');
             
-            options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+            options.headers = { ...options.headers, 'Authorization': `Bearer ${authToken}` };
             const res = await fetch(apiUrl, options);
             if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
             if (res.status === 403) { showToast('Permission denied', 'error'); throw new Error('Forbidden'); }
