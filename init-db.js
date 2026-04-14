@@ -1,67 +1,47 @@
 const pool = require('./database');
 
 async function init() {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS administrators (
-                id SERIAL PRIMARY KEY,
-                username TEXT UNIQUE,
-                password_hash TEXT,
-                full_name TEXT,
-                phone TEXT,
-                avatar_url TEXT,
-                role TEXT DEFAULT 'admin',
-                permissions TEXT
-            );
+  try {
+    console.log("Starting database initialization...");
 
-            CREATE TABLE IF NOT EXISTS activity_logs (
-                id SERIAL PRIMARY KEY,
-                admin_id INTEGER,
-                admin_username TEXT,
-                action TEXT,
-                details TEXT,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
+    // 1. Create Tables
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS administrators (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE,
+        password_hash TEXT,
+        full_name TEXT,
+        phone TEXT,
+        avatar_url TEXT,
+        role TEXT DEFAULT 'admin',
+        permissions TEXT
+      );
 
-            CREATE TABLE IF NOT EXISTS licenses (
-                id SERIAL PRIMARY KEY,
-                license_key TEXT UNIQUE,
-                status TEXT DEFAULT 'active',
-                machine_id TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        admin_id INTEGER,
+        admin_username TEXT,
+        action TEXT,
+        details TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
-            CREATE TABLE IF NOT EXISTS questions (
-                id SERIAL PRIMARY KEY,
-                subject TEXT,
-                exam_body TEXT,
-                year TEXT,
-                question_text TEXT,
-                option_a TEXT,
-                option_b TEXT,
-                option_c TEXT,
-                option_d TEXT,
-                correct_option TEXT,
-                question_image TEXT,
-                option_a_image TEXT,
-                option_b_image TEXT,
-                option_c_image TEXT,
-                option_d_image TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        `);
-        // Add this after your CREATE TABLE queries
-await pool.query(`
-  INSERT INTO administrators (username, password_hash, full_name, role)
-  VALUES ('admin', 'admin123@', 'System Admin', 'admin')
-  ON CONFLICT (username) DO NOTHING;
-`);
-        console.log("✅ Tables created successfully");
-        process.exit();
-    } catch (err) {
-        console.error("❌ Error creating tables:", err);
-        process.exit(1);
-    }
+    // 2. Insert Admin User
+    await pool.query(`
+      INSERT INTO administrators (username, password_hash, full_name, role)
+      VALUES ('admin', 'admin123@', 'System Admin', 'admin')
+      ON CONFLICT (username) DO NOTHING;
+    `);
+
+    console.log("✅ Tables created and admin user verified successfully");
+  } catch (err) {
+    console.error("❌ Error initializing database:", err);
+    process.exit(1); 
+  } finally {
+    await pool.end(); // Closes connection so the script can finish
+    process.exit(0);  // Signals success to Render
+  }
 }
 
 init();
