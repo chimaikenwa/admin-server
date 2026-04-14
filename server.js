@@ -98,7 +98,6 @@ app.post('/api/admin/login', async (req, res) => {
         res.status(500).json({ error: 'Server error: ' + error.message });
     }
 });
-});
 
 /* --- LICENSE ROUTES (FOR DESKTOP APP) --- */
 app.post('/api/licenses/validate', async (req, res) => {

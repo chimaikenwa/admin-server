@@ -4,7 +4,7 @@ console.log("DATABASE_URL:", process.env.DATABASE_URL ? "set" : "NOT SET");
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/chilex",
-    ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 // Convert PostgreSQL $1, $2 to ? for backward compatibility

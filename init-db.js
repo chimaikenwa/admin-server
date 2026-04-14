@@ -50,7 +50,12 @@ async function init() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-
+        // Add this after your CREATE TABLE queries
+await pool.query(`
+  INSERT INTO administrators (username, password_hash, full_name, role)
+  VALUES ('admin', 'admin123@', 'System Admin', 'admin')
+  ON CONFLICT (username) DO NOTHING;
+`);
         console.log("✅ Tables created successfully");
         process.exit();
     } catch (err) {
