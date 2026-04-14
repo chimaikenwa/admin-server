@@ -1528,8 +1528,19 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
 
         // =================== API HELPER ===================
         async function fetchAPI(url, options = {}) {
+            // Fix hardcoded URLs - use relative paths for Node.js
+            let apiUrl = url;
+            if (url.startsWith('http')) {
+                // Extract path from full URL
+                const urlObj = new URL(url);
+                apiUrl = urlObj.pathname + urlObj.search;
+            }
+            // Convert PHP-style to Node.js routes
+            apiUrl = apiUrl.replace('api.php?route=', 'api/admin/');
+            apiUrl = apiUrl.replace('api.php', 'api/admin');
+            
             options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
-            const res = await fetch(url, options);
+            const res = await fetch(apiUrl, options);
             if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
             if (res.status === 403) { showToast('Permission denied', 'error'); throw new Error('Forbidden'); }
             return res.json();
@@ -1538,7 +1549,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         // =================== PROFILE ===================
         async function fetchProfile() {
             try {
-                currentUser = await fetchAPI('https://admin-server-sujv.onrender.com/api/profile');
+                currentUser = await fetchAPI('api/admin/profile');
                 const name = currentUser.full_name || currentUser.username;
                 document.getElementById('adminNameDisplay').innerText = name;
                 document.getElementById('profFullName').value = currentUser.full_name || '';
@@ -1578,7 +1589,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             const phone = document.getElementById('profPhone').value;
             const password = document.getElementById('profPassword').value;
             try {
-                await fetchAPI('api.php?route=profile/update', {
+                await fetchAPI('api/admin/profile/update', {
                     method: 'PATCH',
                     body: fd
                 });
@@ -1592,7 +1603,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             const formData = new FormData();
             formData.append('avatar', document.getElementById('avatarInput').files[0]);
             try {
-                await fetchAPI('api.php?route=profile/avatar', { method: 'POST', body: formData });
+                await fetchAPI('api/admin/profile/avatar', { method: 'POST', body: formData });
                 fetchProfile();
                 showToast('Avatar updated!', 'success');
             } catch (e) { showToast('Avatar upload failed.', 'error'); }
@@ -1601,7 +1612,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         // =================== STATS ===================
         async function loadStats() {
             try {
-                const data = await fetchAPI('api.php?route=stats');
+                const data = await fetchAPI('api/admin/stats');
                 document.getElementById('statTotalLicenses').innerText = data.total_licenses ?? 0;
                 document.getElementById('statTotalQuestions').innerText = data.total_questions ?? 0;
                 document.getElementById('statActiveLicenses').innerText = data.active_licenses ?? 0;
@@ -1614,7 +1625,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
 
         async function loadDashActivity() {
             try {
-                const logs = await fetchAPI('api.php?route=activity');
+                const logs = await fetchAPI('api/admin/activity');
                 const recent = logs.slice(0, 5);
                 document.getElementById('dashActivityFeed').innerHTML = recent.length ? recent.map(l => activityItemHtml(l)).join('') : '<p style="color:var(--text-sub);padding:1rem;">No activity recorded yet.</p>';
                 lucide.createIcons();
@@ -1624,7 +1635,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         // =================== LICENSES ===================
         async function loadLicenses() {
             try {
-                const data = await fetchAPI('api.php?route=licenses');
+                const data = await fetchAPI('api/admin/licenses');
                 document.querySelector('#licensesTable tbody').innerHTML = data.licenses.map((l, i) => `
                     <tr>
                         <td style="color:var(--text-sub)">${i + 1}</td>
@@ -1641,7 +1652,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             const amount = parseInt(prompt('How many licenses to generate?', '1') || '0');
             if (!amount || amount < 1) return;
             try {
-                const res = await fetchAPI('api.php?route=licenses/generate', {
+                const res = await fetchAPI('api/admin/licenses/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ amount })
@@ -1677,8 +1688,8 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
                 const year = document.getElementById('filterYear')?.value || '';
                 const search = document.getElementById('searchQuestions')?.value || '';
                 
-                const data = await fetchAPI('api.php?route=questions&exam_body=' + examBody + '&subject=' + subject + '&year=' + year + '&search=' + search);
-                const meta = await fetchAPI('api.php?route=questions&meta=1' + (subject ? '&subject=' + encodeURIComponent(subject) : ''));
+                const data = await fetchAPI('api/admin/questions?exam_body=' + examBody + '&subject=' + subject + '&year=' + year + '&search=' + search);
+                const meta = await fetchAPI('api/admin/questions?meta=1' + (subject ? '&subject=' + encodeURIComponent(subject) : ''));
                 
                 // Populate subject filter - always rebuild but preserve selection
                 const subjectSel = document.getElementById('filterSubject');
@@ -1751,7 +1762,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             if (action === 'delete') {
                 if (!confirm('Delete ' + selectedQuestions.length + ' question(s)? This cannot be undone.')) return;
                 try {
-                    await fetchAPI('api.php?route=questions/bulk', {
+                    await fetchAPI('api/admin/questions/bulk', {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ ids: selectedQuestions })
@@ -1783,7 +1794,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             const year = document.getElementById('bulk-year-target')?.value;
             
             try {
-                await fetchAPI('api.php?route=questions/bulk', {
+                await fetchAPI('api/admin/questions/bulk', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ids: selectedQuestions, exam_body: examBody, year: year })
@@ -1797,7 +1808,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         async function deleteQuestion(id) {
             if (!confirm('Delete this question?')) return;
             try {
-                await fetchAPI('api.php?route=questions/' + id, { method: 'DELETE' });
+                await fetchAPI('api/admin/questions/' + id, { method: 'DELETE' });
                 showToast('Question deleted.', 'success');
                 loadQuestions();
             } catch (e) { showToast('Failed to delete question.', 'error'); }
@@ -1805,7 +1816,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
 
         async function editQuestion(id) {
             try {
-                const data = await fetchAPI('api.php?route=questions&id=' + id);
+                const data = await fetchAPI('api/admin/questions?id=' + id);
                 const q = data.questions[0];
                 if (!q) return;
                 
@@ -1890,7 +1901,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
                 if (questionImageFile) {
                     const fd = new FormData();
                     fd.append('image', questionImageFile);
-                    const imgRes = await fetchAPI('api.php?route=questions/image', { method: 'POST', body: fd });
+                    const imgRes = await fetchAPI('api/admin/questions/image', { method: 'POST', body: fd });
                     question_image_url = imgRes.image_url;
                 }
 
@@ -1898,7 +1909,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
                     if (file) {
                         const fd = new FormData();
                         fd.append('image', file);
-                        const imgRes = await fetchAPI('api.php?route=questions/image', { method: 'POST', body: fd });
+                        const imgRes = await fetchAPI('api/admin/questions/image', { method: 'POST', body: fd });
                         option_images['option_' + opt + '_image'] = imgRes.image_url;
                     }
                 }
@@ -1911,14 +1922,14 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
                 };
 
                 if (currentEditQuestion) {
-                    await fetchAPI('api.php?route=questions/' + currentEditQuestion.id, {
+                    await fetchAPI('api/admin/questions/' + currentEditQuestion.id, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     showToast('Question updated!', 'success');
                 } else {
-                    await fetchAPI('api.php?route=questions', {
+                    await fetchAPI('api/admin/questions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -1969,7 +1980,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         // =================== USERS ===================
         async function loadUsers() {
             try {
-                const users = await fetchAPI('api.php?route=users');
+                const users = await fetchAPI('api/admin/users');
                 const isSuperAdmin = currentUser?.role === 'super_admin';
                 document.querySelector('#usersTable tbody').innerHTML = users.map(u => `
                     <tr>
@@ -2015,7 +2026,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             if (!username) { showToast('Username is required.', 'error'); return; }
 
             try {
-                await fetchAPI('api.php?route=users/' + id, {
+                await fetchAPI('api/admin/users/' + id, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, full_name, role, permissions, password: password || undefined })
@@ -2036,7 +2047,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
             if (!username || !password) { showToast('Username and password are required.', 'error'); return; }
 
             try {
-                const res = await fetchAPI('api.php?route=users/create', {
+                const res = await fetchAPI('api/admin/users/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password, full_name, role, permissions })
@@ -2052,7 +2063,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
         async function deleteUser(id) {
             if (!confirm('Are you sure you want to delete this admin user?')) return;
             try {
-                await fetchAPI(`api.php?route=users/${id}`, { method: 'DELETE' });
+                await fetchAPI(`api/admin/users/${id}`, { method: 'DELETE' });
                 showToast('User deleted.', 'success');
                 loadUsers();
             } catch (e) { showToast('Failed to delete user.', 'error'); }
@@ -2075,7 +2086,7 @@ $$\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$$</pre>
 
         async function loadActivity() {
             try {
-                const logs = await fetchAPI('api.php?route=activity');
+                const logs = await fetchAPI('api/admin/activity');
                 document.getElementById('activityFeed').innerHTML = logs.length
                     ? logs.map(l => activityItemHtml(l)).join('')
                     : '<p style="color:var(--text-sub);padding:1rem;">No activity recorded yet.</p>';
